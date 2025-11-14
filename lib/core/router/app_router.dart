@@ -215,28 +215,32 @@ class _SplashPageState extends State<SplashPage>
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
-                    width: 140,
-                    height: 140,
+                    width: 220,
+                    height: 220,
                     decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: const LinearGradient(
-                        colors: [AppTheme.neonPurple, AppTheme.neonCyan],
-                      ),
+                      borderRadius: BorderRadius.circular(40),
                       boxShadow: [
                         BoxShadow(
                           color: AppTheme.neonPurple.withValues(alpha: 0.6),
-                          blurRadius: 50,
-                          spreadRadius: 15,
+                          blurRadius: 60,
+                          spreadRadius: 20,
+                        ),
+                        BoxShadow(
+                          color: AppTheme.neonCyan.withValues(alpha: 0.4),
+                          blurRadius: 40,
+                          spreadRadius: 10,
                         ),
                       ],
                     ),
-                    child: const Icon(
-                      Icons.account_balance_wallet,
-                      size: 70,
-                      color: Colors.white,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(40),
+                      child: Image.asset(
+                        'assets/images/neon_finance_logo.png',
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 40),
                   ShaderMask(
                     shaderCallback: (bounds) => const LinearGradient(
                       colors: [AppTheme.neonPurple, AppTheme.neonCyan],

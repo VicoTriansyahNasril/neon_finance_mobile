@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.neon_finance"
+    namespace = "com.vicotriansyah.neonfinance"
     compileSdk = 36
     ndkVersion = "26.1.10909125"
 
