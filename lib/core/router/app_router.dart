@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import '../../core/theme/app_theme.dart';
+import '../theme/app_theme.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/register_page.dart';
 import '../../features/auth/presentation/pages/onboarding_page.dart';
@@ -14,6 +14,7 @@ import '../../features/analytics/presentation/pages/analytics_page.dart';
 import '../../features/gamification/presentation/pages/gamification_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
 import '../../features/profile/presentation/pages/profile_edit_page.dart';
+import '../../features/wallet/presentation/pages/wallet_page.dart';
 import '../../features/settings/presentation/pages/settings_page.dart';
 
 final appRouter = GoRouter(
@@ -85,11 +86,52 @@ final appRouter = GoRouter(
       builder: (context, state) => const ProfileEditPage(),
     ),
     GoRoute(
+      path: '/wallets',
+      name: 'wallets',
+      builder: (context, state) => const WalletPage(),
+    ),
+    GoRoute(
       path: '/settings',
       name: 'settings',
       builder: (context, state) => const SettingsPage(),
     ),
   ],
+  errorBuilder: (context, state) => Scaffold(
+    backgroundColor: AppTheme.darkBg,
+    body: Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(
+            Icons.error_outline,
+            size: 80,
+            color: Colors.red,
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            '404 - Page Not Found',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 32),
+          ElevatedButton(
+            onPressed: () => context.go('/'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.neonPurple,
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+            ),
+            child: const Text(
+              'Go Home',
+              style: TextStyle(fontSize: 16),
+            ),
+          ),
+        ],
+      ),
+    ),
+  ),
 );
 
 class SplashPage extends StatefulWidget {
@@ -99,15 +141,41 @@ class SplashPage extends StatefulWidget {
   State<SplashPage> createState() => _SplashPageState();
 }
 
-class _SplashPageState extends State<SplashPage> {
+class _SplashPageState extends State<SplashPage>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _fadeAnimation;
+
   @override
   void initState() {
     super.initState();
+
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 1500),
+      vsync: this,
+    );
+
+    _scaleAnimation = Tween<double>(begin: 0.5, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOutBack),
+    );
+
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeIn),
+    );
+
+    _controller.forward();
     _checkAuth();
   }
 
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
   Future<void> _checkAuth() async {
-    await Future.delayed(const Duration(seconds: 2));
+    await Future.delayed(const Duration(seconds: 3));
     if (!mounted) return;
 
     final authBox = Hive.box('auth');
@@ -139,53 +207,73 @@ class _SplashPageState extends State<SplashPage> {
           ),
         ),
         child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                width: 120,
-                height: 120,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: const LinearGradient(
-                    colors: [AppTheme.neonPurple, AppTheme.neonCyan],
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppTheme.neonPurple.withValues(alpha: 0.5),
-                      blurRadius: 40,
-                      spreadRadius: 10,
+          child: FadeTransition(
+            opacity: _fadeAnimation,
+            child: ScaleTransition(
+              scale: _scaleAnimation,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 140,
+                    height: 140,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: const LinearGradient(
+                        colors: [AppTheme.neonPurple, AppTheme.neonCyan],
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppTheme.neonPurple.withValues(alpha: 0.6),
+                          blurRadius: 50,
+                          spreadRadius: 15,
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                child: const Icon(
-                  Icons.account_balance_wallet,
-                  size: 60,
-                  color: Colors.white,
-                ),
+                    child: const Icon(
+                      Icons.account_balance_wallet,
+                      size: 70,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  ShaderMask(
+                    shaderCallback: (bounds) => const LinearGradient(
+                      colors: [AppTheme.neonPurple, AppTheme.neonCyan],
+                    ).createShader(bounds),
+                    child: const Text(
+                      'NeonFinance',
+                      style: TextStyle(
+                        fontSize: 42,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        letterSpacing: 2,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Your Smart Finance Companion',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.white.withValues(alpha: 0.7),
+                      letterSpacing: 1,
+                    ),
+                  ),
+                  const SizedBox(height: 60),
+                  SizedBox(
+                    width: 50,
+                    height: 50,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 3,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        AppTheme.neonPurple.withValues(alpha: 0.8),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 24),
-              const Text(
-                'NeonFinance',
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.neonPurple,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Your Smart Finance Companion',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.white.withValues(alpha: 0.6),
-                ),
-              ),
-              const SizedBox(height: 40),
-              const CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(AppTheme.neonPurple),
-              ),
-            ],
+            ),
           ),
         ),
       ),

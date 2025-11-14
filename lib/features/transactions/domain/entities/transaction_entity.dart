@@ -5,6 +5,7 @@ class TransactionEntity {
   final String category;
   final String description;
   final DateTime date;
+  final String? walletId;
 
   TransactionEntity({
     required this.id,
@@ -13,6 +14,7 @@ class TransactionEntity {
     required this.category,
     required this.description,
     required this.date,
+    this.walletId,
   });
 
   Map<String, dynamic> toJson() {
@@ -23,6 +25,7 @@ class TransactionEntity {
       'category': category,
       'description': description,
       'date': date.toIso8601String(),
+      'walletId': walletId,
     };
   }
 
@@ -38,6 +41,7 @@ class TransactionEntity {
       category: json['category'] as String,
       description: json['description'] as String? ?? '',
       date: DateTime.parse(json['date'] as String),
+      walletId: json['walletId'] as String?,
     );
   }
 
@@ -49,6 +53,7 @@ class TransactionEntity {
       category: map['category'] as String,
       description: map['description'] as String? ?? '',
       date: DateTime.parse(map['date'] as String),
+      walletId: map['walletId'] as String?,
     );
   }
 
@@ -59,6 +64,7 @@ class TransactionEntity {
     String? category,
     String? description,
     DateTime? date,
+    String? walletId,
   }) {
     return TransactionEntity(
       id: id ?? this.id,
@@ -67,6 +73,7 @@ class TransactionEntity {
       category: category ?? this.category,
       description: description ?? this.description,
       date: date ?? this.date,
+      walletId: walletId ?? this.walletId,
     );
   }
 }

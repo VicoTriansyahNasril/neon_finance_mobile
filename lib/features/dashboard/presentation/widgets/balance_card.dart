@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
-import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/neon_card.dart';
 
 class BalanceCard extends StatelessWidget {
@@ -18,46 +17,20 @@ class BalanceCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return NeonCard(
-      glowColor: AppTheme.neonPurple,
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Total Balance',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.white60,
-                ),
-              ),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: AppTheme.neonPurple.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: AppTheme.neonPurple.withValues(alpha: 0.5),
-                  ),
-                ),
-                child: const Text(
-                  'This Month',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: AppTheme.neonPurple,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ],
+          const Text(
+            'Total Saldo',
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.white54,
+            ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           Text(
-            Formatters.currency(balance),
+            'Rp ${balance.toStringAsFixed(0)}',
             style: const TextStyle(
-              fontSize: 32,
+              fontSize: 36,
               fontWeight: FontWeight.bold,
               color: Colors.white,
             ),
@@ -66,25 +39,24 @@ class BalanceCard extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: _buildInfoItem(
-                  icon: Icons.arrow_downward,
-                  label: 'Income',
-                  amount: income,
-                  color: AppTheme.neonGreen,
+                child: _buildBalanceItem(
+                  'Pemasukan',
+                  income,
+                  AppTheme.neonGreen,
+                  Icons.trending_up,
                 ),
               ),
               Container(
                 width: 1,
-                height: 40,
-                color: Colors.white10,
-                margin: const EdgeInsets.symmetric(horizontal: 16),
+                height: 50,
+                color: Colors.white12,
               ),
               Expanded(
-                child: _buildInfoItem(
-                  icon: Icons.arrow_upward,
-                  label: 'Expense',
-                  amount: expense,
-                  color: AppTheme.neonPink,
+                child: _buildBalanceItem(
+                  'Pengeluaran',
+                  expense,
+                  Colors.red,
+                  Icons.trending_down,
                 ),
               ),
             ],
@@ -94,34 +66,25 @@ class BalanceCard extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoItem({
-    required IconData icon,
-    required String label,
-    required double amount,
-    required Color color,
-  }) {
+  Widget _buildBalanceItem(
+      String label, double amount, Color color, IconData icon) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Icon(icon, size: 16, color: color),
-            const SizedBox(width: 4),
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 12,
-                color: Colors.white60,
-              ),
-            ),
-          ],
+        Icon(icon, color: color, size: 28),
+        const SizedBox(height: 8),
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 13,
+            color: Colors.white54,
+          ),
         ),
         const SizedBox(height: 4),
         Text(
-          Formatters.currency(amount),
+          'Rp ${amount.toStringAsFixed(0)}',
           style: TextStyle(
             fontSize: 16,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.bold,
             color: color,
           ),
         ),

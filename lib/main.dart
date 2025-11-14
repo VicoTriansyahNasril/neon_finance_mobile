@@ -41,6 +41,7 @@ Future<void> _openBoxes() async {
     Hive.openBox('goals'),
     Hive.openBox('gamification'),
     Hive.openBox('settings'),
+    Hive.openBox('wallet'),
   ]);
 }
 
