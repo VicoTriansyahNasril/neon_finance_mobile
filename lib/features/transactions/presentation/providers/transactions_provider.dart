@@ -1,103 +1,89 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-import 'package:uuid/uuid.dart';
+import 'package:hive/hive.dart';
 import '../../domain/entities/transaction_entity.dart';
 
-final transactionsProvider =
-    StateNotifierProvider<TransactionsNotifier, TransactionsState>((ref) {
-  return TransactionsNotifier();
-});
+final transactionsProvider = StateNotifierProvider<TransactionsNotifier,
+    AsyncValue<List<TransactionEntity>>>(
+  (ref) => TransactionsNotifier(),
+);
 
-class TransactionsState {
-  final List<TransactionEntity> transactions;
-  final bool isLoading;
-  final String? error;
+class TransactionsNotifier
+    extends StateNotifier<AsyncValue<List<TransactionEntity>>> {
+  final _box = Hive.box('transactions');
 
-  TransactionsState({
-    this.transactions = const [],
-    this.isLoading = false,
-    this.error,
-  });
-
-  TransactionsState copyWith({
-    List<TransactionEntity>? transactions,
-    bool? isLoading,
-    String? error,
-  }) {
-    return TransactionsState(
-      transactions: transactions ?? this.transactions,
-      isLoading: isLoading ?? this.isLoading,
-      error: error ?? this.error,
-    );
-  }
-}
-
-class TransactionsNotifier extends StateNotifier<TransactionsState> {
-  TransactionsNotifier() : super(TransactionsState()) {
-    loadTransactions();
+  TransactionsNotifier() : super(const AsyncValue.loading()) {
+    _loadTransactions();
   }
 
-  final _uuid = const Uuid();
-
-  Future<void> loadTransactions() async {
-    state = state.copyWith(isLoading: true);
-
-    final box = Hive.box('transactions');
-    final List<TransactionEntity> transactions = [];
-
-    for (var i = 0; i < box.length; i++) {
-      final data = box.getAt(i);
-      if (data != null) {
-        transactions.add(TransactionEntity.fromMap(data as Map));
+  Future<void> _loadTransactions() async {
+    try {
+      final transactions = <TransactionEntity>[];
+      for (var key in _box.keys) {
+        final data = _box.get(key) as Map;
+        transactions.add(TransactionEntity.fromMap(data));
       }
+      transactions.sort((a, b) => b.date.compareTo(a.date));
+      state = AsyncValue.data(transactions);
+    } catch (e, stack) {
+      state = AsyncValue.error(e, stack);
     }
-
-    transactions.sort((a, b) => b.date.compareTo(a.date));
-
-    state = state.copyWith(
-      transactions: transactions,
-      isLoading: false,
-    );
   }
 
-  Future<void> addTransaction({
-    required String type,
-    required String category,
-    required double amount,
-    required DateTime date,
-    required String description,
-  }) async {
-    final box = Hive.box('transactions');
+  Future<void> addTransaction(TransactionEntity transaction) async {
+    try {
+      await _box.put(transaction.id, transaction.toMap());
+      await _loadTransactions();
+    } catch (e, stack) {
+      state = AsyncValue.error(e, stack);
+    }
+  }
 
-    final transaction = TransactionEntity(
-      id: _uuid.v4(),
-      type: type,
-      category: category,
-      amount: amount,
-      date: date,
-      description: description,
-    );
-
-    await box.add(transaction.toMap());
-
-    final gamificationBox = Hive.box('gamification');
-    final currentXp = gamificationBox.get('xp', defaultValue: 0) as int;
-    await gamificationBox.put('xp', currentXp + 10);
-
-    await loadTransactions();
+  Future<void> updateTransaction(TransactionEntity transaction) async {
+    try {
+      await _box.put(transaction.id, transaction.toMap());
+      await _loadTransactions();
+    } catch (e, stack) {
+      state = AsyncValue.error(e, stack);
+    }
   }
 
   Future<void> deleteTransaction(String id) async {
-    final box = Hive.box('transactions');
-
-    for (var i = 0; i < box.length; i++) {
-      final data = box.getAt(i) as Map?;
-      if (data != null && data['id'] == id) {
-        await box.deleteAt(i);
-        break;
-      }
+    try {
+      await _box.delete(id);
+      await _loadTransactions();
+    } catch (e, stack) {
+      state = AsyncValue.error(e, stack);
     }
+  }
 
-    await loadTransactions();
+  List<TransactionEntity> getTransactionsByMonth(DateTime month) {
+    return state.maybeWhen(
+      data: (transactions) => transactions.where((t) {
+        return t.date.year == month.year && t.date.month == month.month;
+      }).toList(),
+      orElse: () => [],
+    );
+  }
+
+  double getTotalIncome(DateTime month) {
+    return state.maybeWhen(
+      data: (transactions) => transactions.where((t) {
+        return t.type == 'income' &&
+            t.date.year == month.year &&
+            t.date.month == month.month;
+      }).fold(0.0, (sum, t) => sum + t.amount),
+      orElse: () => 0.0,
+    );
+  }
+
+  double getTotalExpense(DateTime month) {
+    return state.maybeWhen(
+      data: (transactions) => transactions.where((t) {
+        return t.type == 'expense' &&
+            t.date.year == month.year &&
+            t.date.month == month.month;
+      }).fold(0.0, (sum, t) => sum + t.amount),
+      orElse: () => 0.0,
+    );
   }
 }

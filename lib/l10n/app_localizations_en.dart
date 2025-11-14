@@ -9,13 +9,10 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appName => 'NeonFinance';
+  String get welcomeBack => 'Welcome Back!';
 
   @override
-  String get welcomeBack => 'Welcome Back';
-
-  @override
-  String get loginSubtitle => 'Login to continue your financial journey';
+  String get loginToContinue => 'Login to continue managing your finances';
 
   @override
   String get email => 'Email';
@@ -24,7 +21,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get password => 'Password';
 
   @override
-  String get rememberMe => 'Remember me';
+  String get forgotPassword => 'Forgot Password?';
 
   @override
   String get login => 'Login';
@@ -39,10 +36,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get createAccount => 'Create Account';
 
   @override
-  String get startJourney => 'Start your financial journey today';
+  String get startYourFinancialJourney =>
+      'Start your financial journey with us';
 
   @override
-  String get fullName => 'Full Name';
+  String get name => 'Name';
 
   @override
   String get confirmPassword => 'Confirm Password';
@@ -51,11 +49,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get alreadyHaveAccount => 'Already have an account?';
 
   @override
-  String get trackYourMoney => 'Track Your Money';
+  String get manageYourFinances => 'Manage Your Finances';
 
   @override
-  String get trackMoneyDesc =>
-      'Keep track of all your income and expenses with ease';
+  String get manageFinancesDesc =>
+      'Track all your income and expenses effortlessly';
 
   @override
   String get setYourBudget => 'Set Your Budget';
@@ -68,7 +66,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get levelUpDesc =>
-      'Earn XP and badges as you improve your finance habits';
+      'Earn XP and badges as you improve your financial habits';
 
   @override
   String get getStarted => 'Get Started';
@@ -142,7 +140,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get english => 'English';
 
   @override
-  String get indonesian => 'Indonesian';
+  String get indonesian => 'Bahasa Indonesia';
 
   @override
   String get theme => 'Theme';
@@ -215,4 +213,164 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get passwordNotMatch => 'Passwords do not match';
+
+  @override
+  String get personalInfo => 'Personal Information';
+
+  @override
+  String get phoneNumber => 'Phone Number';
+
+  @override
+  String get address => 'Address';
+
+  @override
+  String get dateOfBirth => 'Date of Birth';
+
+  @override
+  String get profilePhoto => 'Profile Photo';
+
+  @override
+  String get updateProfile => 'Update Profile';
+
+  @override
+  String get changePhoto => 'Change Photo';
+
+  @override
+  String get takePhoto => 'Take Photo';
+
+  @override
+  String get chooseFromGallery => 'Choose from Gallery';
+
+  @override
+  String get removePhoto => 'Remove Photo';
+
+  @override
+  String get pleaseEnterPhone => 'Please enter your phone number';
+
+  @override
+  String get pleaseEnterValidPhone => 'Please enter a valid phone number';
+
+  @override
+  String get pleaseEnterAddress => 'Please enter your address';
+
+  @override
+  String get pleaseSelectDate => 'Please select your date of birth';
+
+  @override
+  String get profileUpdated => 'Profile updated successfully';
+
+  @override
+  String get errorUpdatingProfile => 'Error updating profile';
+
+  @override
+  String get notifications => 'Notifications';
+
+  @override
+  String get enableNotifications => 'Enable Notifications';
+
+  @override
+  String get notificationReminder => 'Notification Reminder';
+
+  @override
+  String get reminderEvery6Hours => 'Remind me every 6 hours';
+
+  @override
+  String get budgetAlerts => 'Budget Alerts';
+
+  @override
+  String get goalReminders => 'Goal Reminders';
+
+  @override
+  String get transactionReminders => 'Transaction Reminders';
+
+  @override
+  String get notificationTitle => 'NeonFinance Reminder';
+
+  @override
+  String get notificationBody => 'Don\'t forget to track your expenses today!';
+
+  @override
+  String budgetLimitReached(String category) {
+    return 'Budget limit reached for $category';
+  }
+
+  @override
+  String goalDeadlineNear(String goal) {
+    return 'Goal deadline approaching: $goal';
+  }
+
+  @override
+  String get invalidEmail => 'Invalid email format';
+
+  @override
+  String get invalidPassword => 'Password too weak';
+
+  @override
+  String get emailAlreadyExists => 'Email already registered';
+
+  @override
+  String get userNotFound => 'User not found';
+
+  @override
+  String get wrongPassword => 'Wrong password';
+
+  @override
+  String get networkError => 'Network connection error';
+
+  @override
+  String get serverError => 'Server error, please try again';
+
+  @override
+  String get unknownError => 'An error occurred';
+
+  @override
+  String get tryAgain => 'Try Again';
+
+  @override
+  String get ok => 'OK';
+
+  @override
+  String get confirm => 'Confirm';
+
+  @override
+  String get areYouSure => 'Are you sure?';
+
+  @override
+  String get deleteConfirm => 'This action cannot be undone';
+
+  @override
+  String get logoutConfirm => 'Are you sure you want to logout?';
+
+  @override
+  String get yes => 'Yes';
+
+  @override
+  String get no => 'No';
+
+  @override
+  String get loading => 'Loading...';
+
+  @override
+  String get saving => 'Saving...';
+
+  @override
+  String get deleting => 'Deleting...';
+
+  @override
+  String get updating => 'Updating...';
+
+  @override
+  String get pleaseWait => 'Please wait';
+
+  @override
+  String get noDataAvailable => 'No data available';
+
+  @override
+  String get refreshing => 'Refreshing...';
+
+  @override
+  String get pullToRefresh => 'Pull to refresh';
+
+  @override
+  String get releaseToRefresh => 'Release to refresh';
 }

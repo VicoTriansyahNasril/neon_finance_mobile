@@ -98,23 +98,17 @@ abstract class AppLocalizations {
     Locale('id')
   ];
 
-  /// No description provided for @appName.
-  ///
-  /// In en, this message translates to:
-  /// **'NeonFinance'**
-  String get appName;
-
   /// No description provided for @welcomeBack.
   ///
   /// In en, this message translates to:
-  /// **'Welcome Back'**
+  /// **'Welcome Back!'**
   String get welcomeBack;
 
-  /// No description provided for @loginSubtitle.
+  /// No description provided for @loginToContinue.
   ///
   /// In en, this message translates to:
-  /// **'Login to continue your financial journey'**
-  String get loginSubtitle;
+  /// **'Login to continue managing your finances'**
+  String get loginToContinue;
 
   /// No description provided for @email.
   ///
@@ -128,11 +122,11 @@ abstract class AppLocalizations {
   /// **'Password'**
   String get password;
 
-  /// No description provided for @rememberMe.
+  /// No description provided for @forgotPassword.
   ///
   /// In en, this message translates to:
-  /// **'Remember me'**
-  String get rememberMe;
+  /// **'Forgot Password?'**
+  String get forgotPassword;
 
   /// No description provided for @login.
   ///
@@ -158,17 +152,17 @@ abstract class AppLocalizations {
   /// **'Create Account'**
   String get createAccount;
 
-  /// No description provided for @startJourney.
+  /// No description provided for @startYourFinancialJourney.
   ///
   /// In en, this message translates to:
-  /// **'Start your financial journey today'**
-  String get startJourney;
+  /// **'Start your financial journey with us'**
+  String get startYourFinancialJourney;
 
-  /// No description provided for @fullName.
+  /// No description provided for @name.
   ///
   /// In en, this message translates to:
-  /// **'Full Name'**
-  String get fullName;
+  /// **'Name'**
+  String get name;
 
   /// No description provided for @confirmPassword.
   ///
@@ -182,17 +176,17 @@ abstract class AppLocalizations {
   /// **'Already have an account?'**
   String get alreadyHaveAccount;
 
-  /// No description provided for @trackYourMoney.
+  /// No description provided for @manageYourFinances.
   ///
   /// In en, this message translates to:
-  /// **'Track Your Money'**
-  String get trackYourMoney;
+  /// **'Manage Your Finances'**
+  String get manageYourFinances;
 
-  /// No description provided for @trackMoneyDesc.
+  /// No description provided for @manageFinancesDesc.
   ///
   /// In en, this message translates to:
-  /// **'Keep track of all your income and expenses with ease'**
-  String get trackMoneyDesc;
+  /// **'Track all your income and expenses effortlessly'**
+  String get manageFinancesDesc;
 
   /// No description provided for @setYourBudget.
   ///
@@ -215,7 +209,7 @@ abstract class AppLocalizations {
   /// No description provided for @levelUpDesc.
   ///
   /// In en, this message translates to:
-  /// **'Earn XP and badges as you improve your finance habits'**
+  /// **'Earn XP and badges as you improve your financial habits'**
   String get levelUpDesc;
 
   /// No description provided for @getStarted.
@@ -359,7 +353,7 @@ abstract class AppLocalizations {
   /// No description provided for @indonesian.
   ///
   /// In en, this message translates to:
-  /// **'Indonesian'**
+  /// **'Bahasa Indonesia'**
   String get indonesian;
 
   /// No description provided for @theme.
@@ -505,6 +499,318 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Passwords do not match'**
   String get passwordNotMatch;
+
+  /// No description provided for @personalInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal Information'**
+  String get personalInfo;
+
+  /// No description provided for @phoneNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone Number'**
+  String get phoneNumber;
+
+  /// No description provided for @address.
+  ///
+  /// In en, this message translates to:
+  /// **'Address'**
+  String get address;
+
+  /// No description provided for @dateOfBirth.
+  ///
+  /// In en, this message translates to:
+  /// **'Date of Birth'**
+  String get dateOfBirth;
+
+  /// No description provided for @profilePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile Photo'**
+  String get profilePhoto;
+
+  /// No description provided for @updateProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Profile'**
+  String get updateProfile;
+
+  /// No description provided for @changePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Change Photo'**
+  String get changePhoto;
+
+  /// No description provided for @takePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Take Photo'**
+  String get takePhoto;
+
+  /// No description provided for @chooseFromGallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose from Gallery'**
+  String get chooseFromGallery;
+
+  /// No description provided for @removePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove Photo'**
+  String get removePhoto;
+
+  /// No description provided for @pleaseEnterPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your phone number'**
+  String get pleaseEnterPhone;
+
+  /// No description provided for @pleaseEnterValidPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid phone number'**
+  String get pleaseEnterValidPhone;
+
+  /// No description provided for @pleaseEnterAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your address'**
+  String get pleaseEnterAddress;
+
+  /// No description provided for @pleaseSelectDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select your date of birth'**
+  String get pleaseSelectDate;
+
+  /// No description provided for @profileUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile updated successfully'**
+  String get profileUpdated;
+
+  /// No description provided for @errorUpdatingProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Error updating profile'**
+  String get errorUpdatingProfile;
+
+  /// No description provided for @notifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get notifications;
+
+  /// No description provided for @enableNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable Notifications'**
+  String get enableNotifications;
+
+  /// No description provided for @notificationReminder.
+  ///
+  /// In en, this message translates to:
+  /// **'Notification Reminder'**
+  String get notificationReminder;
+
+  /// No description provided for @reminderEvery6Hours.
+  ///
+  /// In en, this message translates to:
+  /// **'Remind me every 6 hours'**
+  String get reminderEvery6Hours;
+
+  /// No description provided for @budgetAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'Budget Alerts'**
+  String get budgetAlerts;
+
+  /// No description provided for @goalReminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Goal Reminders'**
+  String get goalReminders;
+
+  /// No description provided for @transactionReminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction Reminders'**
+  String get transactionReminders;
+
+  /// No description provided for @notificationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'NeonFinance Reminder'**
+  String get notificationTitle;
+
+  /// No description provided for @notificationBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t forget to track your expenses today!'**
+  String get notificationBody;
+
+  /// No description provided for @budgetLimitReached.
+  ///
+  /// In en, this message translates to:
+  /// **'Budget limit reached for {category}'**
+  String budgetLimitReached(String category);
+
+  /// No description provided for @goalDeadlineNear.
+  ///
+  /// In en, this message translates to:
+  /// **'Goal deadline approaching: {goal}'**
+  String goalDeadlineNear(String goal);
+
+  /// No description provided for @invalidEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid email format'**
+  String get invalidEmail;
+
+  /// No description provided for @invalidPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Password too weak'**
+  String get invalidPassword;
+
+  /// No description provided for @emailAlreadyExists.
+  ///
+  /// In en, this message translates to:
+  /// **'Email already registered'**
+  String get emailAlreadyExists;
+
+  /// No description provided for @userNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'User not found'**
+  String get userNotFound;
+
+  /// No description provided for @wrongPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong password'**
+  String get wrongPassword;
+
+  /// No description provided for @networkError.
+  ///
+  /// In en, this message translates to:
+  /// **'Network connection error'**
+  String get networkError;
+
+  /// No description provided for @serverError.
+  ///
+  /// In en, this message translates to:
+  /// **'Server error, please try again'**
+  String get serverError;
+
+  /// No description provided for @unknownError.
+  ///
+  /// In en, this message translates to:
+  /// **'An error occurred'**
+  String get unknownError;
+
+  /// No description provided for @tryAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Try Again'**
+  String get tryAgain;
+
+  /// No description provided for @ok.
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get ok;
+
+  /// No description provided for @confirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get confirm;
+
+  /// No description provided for @areYouSure.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure?'**
+  String get areYouSure;
+
+  /// No description provided for @deleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'This action cannot be undone'**
+  String get deleteConfirm;
+
+  /// No description provided for @logoutConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to logout?'**
+  String get logoutConfirm;
+
+  /// No description provided for @yes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes'**
+  String get yes;
+
+  /// No description provided for @no.
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get no;
+
+  /// No description provided for @loading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading...'**
+  String get loading;
+
+  /// No description provided for @saving.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving...'**
+  String get saving;
+
+  /// No description provided for @deleting.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleting...'**
+  String get deleting;
+
+  /// No description provided for @updating.
+  ///
+  /// In en, this message translates to:
+  /// **'Updating...'**
+  String get updating;
+
+  /// No description provided for @pleaseWait.
+  ///
+  /// In en, this message translates to:
+  /// **'Please wait'**
+  String get pleaseWait;
+
+  /// No description provided for @noDataAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No data available'**
+  String get noDataAvailable;
+
+  /// No description provided for @refreshing.
+  ///
+  /// In en, this message translates to:
+  /// **'Refreshing...'**
+  String get refreshing;
+
+  /// No description provided for @pullToRefresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Pull to refresh'**
+  String get pullToRefresh;
+
+  /// No description provided for @releaseToRefresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Release to refresh'**
+  String get releaseToRefresh;
 }
 
 class _AppLocalizationsDelegate

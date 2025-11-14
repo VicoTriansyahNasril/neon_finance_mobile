@@ -6,6 +6,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'core/providers/locale_provider.dart';
+import 'core/services/notification_service.dart';
 import 'l10n/app_localizations.dart';
 
 void main() async {
@@ -26,6 +27,8 @@ void main() async {
 
   await Hive.initFlutter();
   await _openBoxes();
+
+  await NotificationService().initialize();
 
   runApp(const ProviderScope(child: NeonFinanceApp()));
 }
@@ -54,7 +57,7 @@ class NeonFinanceApp extends ConsumerWidget {
       theme: AppTheme.darkTheme,
       routerConfig: appRouter,
       locale: locale,
-      localizationsDelegates: [
+      localizationsDelegates: const [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
@@ -67,7 +70,7 @@ class NeonFinanceApp extends ConsumerWidget {
       builder: (context, child) {
         return MediaQuery(
           data: MediaQuery.of(context).copyWith(
-            textScaler: const TextScaler.linear(1.0),
+            textScaler: const TextScaler.linear(1.1),
           ),
           child: child!,
         );

@@ -1,249 +1,156 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-import 'package:uuid/uuid.dart';
+import 'package:hive/hive.dart';
 import '../../domain/entities/badge_entity.dart';
 import '../../domain/entities/quest_entity.dart';
 
 final gamificationProvider =
-    StateNotifierProvider<GamificationNotifier, GamificationState>((ref) {
-  return GamificationNotifier();
-});
+    StateNotifierProvider<GamificationNotifier, GamificationState>(
+  (ref) => GamificationNotifier(),
+);
 
 class GamificationState {
-  final List<BadgeEntity> badges;
-  final List<QuestEntity> dailyQuests;
-  final int level;
   final int xp;
-  final int xpToNextLevel;
-  final bool isLoading;
+  final int level;
+  final List<BadgeEntity> badges;
+  final List<QuestEntity> quests;
 
   GamificationState({
-    this.badges = const [],
-    this.dailyQuests = const [],
-    this.level = 1,
-    this.xp = 0,
-    this.xpToNextLevel = 100,
-    this.isLoading = false,
+    required this.xp,
+    required this.level,
+    required this.badges,
+    required this.quests,
   });
 
   GamificationState copyWith({
-    List<BadgeEntity>? badges,
-    List<QuestEntity>? dailyQuests,
-    int? level,
     int? xp,
-    int? xpToNextLevel,
-    bool? isLoading,
+    int? level,
+    List<BadgeEntity>? badges,
+    List<QuestEntity>? quests,
   }) {
     return GamificationState(
-      badges: badges ?? this.badges,
-      dailyQuests: dailyQuests ?? this.dailyQuests,
-      level: level ?? this.level,
       xp: xp ?? this.xp,
-      xpToNextLevel: xpToNextLevel ?? this.xpToNextLevel,
-      isLoading: isLoading ?? this.isLoading,
+      level: level ?? this.level,
+      badges: badges ?? this.badges,
+      quests: quests ?? this.quests,
     );
   }
 }
 
 class GamificationNotifier extends StateNotifier<GamificationState> {
-  GamificationNotifier() : super(GamificationState()) {
-    loadGamification();
+  final _box = Hive.box('gamification');
+
+  GamificationNotifier()
+      : super(GamificationState(
+          xp: 0,
+          level: 1,
+          badges: [],
+          quests: [],
+        )) {
+    _loadData();
   }
 
-  final _uuid = const Uuid();
-
-  Future<void> loadGamification() async {
-    state = state.copyWith(isLoading: true);
-
-    final box = Hive.box('gamification');
-
-    final xp = box.get('xp', defaultValue: 0) as int;
-    final level = (xp / 100).floor() + 1;
-    final xpToNextLevel = (level * 100) - xp;
-
-    final badges = _loadBadges(box);
-    final quests = _loadQuests(box);
+  void _loadData() {
+    final xp = _box.get('xp', defaultValue: 0) as int;
+    final level = _box.get('level', defaultValue: 1) as int;
 
     state = state.copyWith(
-      badges: badges,
-      dailyQuests: quests,
-      level: level,
       xp: xp,
-      xpToNextLevel: xpToNextLevel,
-      isLoading: false,
+      level: level,
+      badges: _getDefaultBadges(),
+      quests: _getDefaultQuests(),
     );
   }
 
-  List<BadgeEntity> _loadBadges(Box box) {
-    final List<BadgeEntity> badges = [];
-    final badgesData = box.get('badges', defaultValue: <dynamic>[]) as List;
+  Future<void> earnXP(int amount) async {
+    final newXP = state.xp + amount;
+    final newLevel = _calculateLevel(newXP);
 
-    for (var data in badgesData) {
-      if (data is Map) {
-        badges.add(BadgeEntity.fromMap(data));
+    await _box.put('xp', newXP);
+    await _box.put('level', newLevel);
+
+    state = state.copyWith(
+      xp: newXP,
+      level: newLevel,
+    );
+
+    _checkBadges();
+    _checkQuests();
+  }
+
+  int _calculateLevel(int xp) {
+    return (xp / 100).floor() + 1;
+  }
+
+  void _checkBadges() {
+    final updatedBadges = state.badges.map((badge) {
+      if (!badge.isUnlocked) {
+        if (badge.id == 'first_transaction' && state.xp >= 10) {
+          return badge.copyWith(isUnlocked: true);
+        } else if (badge.id == 'spending_master' && state.xp >= 100) {
+          return badge.copyWith(isUnlocked: true);
+        } else if (badge.id == 'budget_keeper' && state.xp >= 500) {
+          return badge.copyWith(isUnlocked: true);
+        }
       }
-    }
+      return badge;
+    }).toList();
 
-    if (badges.isEmpty) {
-      badges.addAll(_initializeBadges());
-      box.put('badges', badges.map((b) => b.toMap()).toList());
-    }
-
-    return badges;
+    state = state.copyWith(badges: updatedBadges);
   }
 
-  List<QuestEntity> _loadQuests(Box box) {
-    final List<QuestEntity> quests = [];
-    final questsData = box.get('quests', defaultValue: <dynamic>[]) as List;
-
-    for (var data in questsData) {
-      if (data is Map) {
-        quests.add(QuestEntity.fromMap(data));
+  void _checkQuests() {
+    final updatedQuests = state.quests.map((quest) {
+      if (!quest.isCompleted && state.xp >= quest.xpReward) {
+        return quest.copyWith(isCompleted: true);
       }
-    }
+      return quest;
+    }).toList();
 
-    if (quests.isEmpty || _shouldResetQuests(box)) {
-      quests.clear();
-      quests.addAll(_generateDailyQuests());
-      box.put('quests', quests.map((q) => q.toMap()).toList());
-      box.put('lastQuestReset', DateTime.now().toIso8601String());
-    }
-
-    return quests;
+    state = state.copyWith(quests: updatedQuests);
   }
 
-  bool _shouldResetQuests(Box box) {
-    final lastReset = box.get('lastQuestReset') as String?;
-    if (lastReset == null) return true;
-
-    final lastResetDate = DateTime.parse(lastReset);
-    final now = DateTime.now();
-
-    return now.day != lastResetDate.day ||
-        now.month != lastResetDate.month ||
-        now.year != lastResetDate.year;
-  }
-
-  List<BadgeEntity> _initializeBadges() {
+  List<BadgeEntity> _getDefaultBadges() {
     return [
       BadgeEntity(
-        id: _uuid.v4(),
+        id: 'first_transaction',
         name: 'First Step',
         description: 'Add your first transaction',
-        iconName: 'star',
+        icon: 'star',
+        isUnlocked: state.xp >= 10,
       ),
       BadgeEntity(
-        id: _uuid.v4(),
-        name: 'Budget Master',
-        description: 'Create your first budget',
-        iconName: 'trending_up',
+        id: 'spending_master',
+        name: 'Spending Master',
+        description: 'Track 10 transactions',
+        icon: 'trending_up',
+        isUnlocked: state.xp >= 100,
       ),
       BadgeEntity(
-        id: _uuid.v4(),
-        name: 'Goal Setter',
-        description: 'Create your first goal',
-        iconName: 'flag',
-      ),
-      BadgeEntity(
-        id: _uuid.v4(),
-        name: 'Consistent Tracker',
-        description: 'Add transactions for 7 consecutive days',
-        iconName: 'calendar_today',
-      ),
-      BadgeEntity(
-        id: _uuid.v4(),
-        name: 'Money Saver',
-        description: 'Save more than you spend in a month',
-        iconName: 'savings',
+        id: 'budget_keeper',
+        name: 'Budget Keeper',
+        description: 'Set your first budget',
+        icon: 'savings',
+        isUnlocked: state.xp >= 500,
       ),
     ];
   }
 
-  List<QuestEntity> _generateDailyQuests() {
-    final tomorrow = DateTime.now().add(const Duration(days: 1));
-    final endOfDay =
-        DateTime(tomorrow.year, tomorrow.month, tomorrow.day, 0, 0, 0);
-
+  List<QuestEntity> _getDefaultQuests() {
     return [
       QuestEntity(
-        id: _uuid.v4(),
-        title: 'Track Your Spending',
+        id: 'daily_tracker',
+        title: 'Daily Tracker',
         description: 'Add 3 transactions today',
-        targetCount: 3,
-        xpReward: 20,
-        expiresAt: endOfDay,
+        xpReward: 30,
+        isCompleted: false,
       ),
       QuestEntity(
-        id: _uuid.v4(),
-        title: 'Budget Check',
-        description: 'Review your budget progress',
-        targetCount: 1,
-        xpReward: 15,
-        expiresAt: endOfDay,
-      ),
-      QuestEntity(
-        id: _uuid.v4(),
-        title: 'Goal Progress',
-        description: 'Add progress to a goal',
-        targetCount: 1,
-        xpReward: 25,
-        expiresAt: endOfDay,
+        id: 'budget_setter',
+        title: 'Budget Setter',
+        description: 'Set a monthly budget',
+        xpReward: 50,
+        isCompleted: false,
       ),
     ];
-  }
-
-  Future<void> completeQuest(String questId) async {
-    final box = Hive.box('gamification');
-    final questsData = box.get('quests', defaultValue: <dynamic>[]) as List;
-
-    for (var i = 0; i < questsData.length; i++) {
-      final data = questsData[i] as Map;
-      if (data['id'] == questId) {
-        final quest = QuestEntity.fromMap(data);
-        final updatedQuest = QuestEntity(
-          id: quest.id,
-          title: quest.title,
-          description: quest.description,
-          targetCount: quest.targetCount,
-          currentCount: quest.targetCount,
-          xpReward: quest.xpReward,
-          expiresAt: quest.expiresAt,
-          isCompleted: true,
-        );
-        questsData[i] = updatedQuest.toMap();
-
-        final currentXp = box.get('xp', defaultValue: 0) as int;
-        await box.put('xp', currentXp + quest.xpReward);
-        break;
-      }
-    }
-
-    await box.put('quests', questsData);
-    await loadGamification();
-  }
-
-  Future<void> unlockBadge(String badgeId) async {
-    final box = Hive.box('gamification');
-    final badgesData = box.get('badges', defaultValue: <dynamic>[]) as List;
-
-    for (var i = 0; i < badgesData.length; i++) {
-      final data = badgesData[i] as Map;
-      if (data['id'] == badgeId) {
-        final badge = BadgeEntity.fromMap(data);
-        final updatedBadge = BadgeEntity(
-          id: badge.id,
-          name: badge.name,
-          description: badge.description,
-          iconName: badge.iconName,
-          isUnlocked: true,
-          unlockedAt: DateTime.now(),
-        );
-        badgesData[i] = updatedBadge.toMap();
-        break;
-      }
-    }
-
-    await box.put('badges', badgesData);
-    await loadGamification();
   }
 }

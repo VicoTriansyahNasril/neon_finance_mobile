@@ -1,98 +1,82 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-import 'package:uuid/uuid.dart';
+import 'package:hive/hive.dart';
 import '../../domain/entities/budget_entity.dart';
+import '../../../../core/services/notification_service.dart';
+import '../../../transactions/presentation/providers/transactions_provider.dart';
 
 final budgetProvider =
-    StateNotifierProvider<BudgetNotifier, BudgetState>((ref) {
-  return BudgetNotifier();
-});
+    StateNotifierProvider<BudgetNotifier, List<BudgetEntity>>(
+  (ref) => BudgetNotifier(ref),
+);
 
-class BudgetState {
-  final List<BudgetEntity> budgets;
-  final double monthlyBudget;
-  final bool isLoading;
+class BudgetNotifier extends StateNotifier<List<BudgetEntity>> {
+  final Ref ref;
+  final _box = Hive.box('budget');
 
-  BudgetState({
-    this.budgets = const [],
-    this.monthlyBudget = 0,
-    this.isLoading = false,
-  });
-
-  BudgetState copyWith({
-    List<BudgetEntity>? budgets,
-    double? monthlyBudget,
-    bool? isLoading,
-  }) {
-    return BudgetState(
-      budgets: budgets ?? this.budgets,
-      monthlyBudget: monthlyBudget ?? this.monthlyBudget,
-      isLoading: isLoading ?? this.isLoading,
-    );
-  }
-}
-
-class BudgetNotifier extends StateNotifier<BudgetState> {
-  BudgetNotifier() : super(BudgetState()) {
-    loadBudgets();
+  BudgetNotifier(this.ref) : super([]) {
+    _loadBudgets();
   }
 
-  final _uuid = const Uuid();
-
-  Future<void> loadBudgets() async {
-    state = state.copyWith(isLoading: true);
-
-    final box = Hive.box('budget');
-    final List<BudgetEntity> budgets = [];
-
-    for (var i = 0; i < box.length; i++) {
-      final data = box.getAt(i);
-      if (data != null && data is Map) {
-        budgets.add(BudgetEntity.fromMap(data));
-      }
+  void _loadBudgets() {
+    final budgets = <BudgetEntity>[];
+    for (var key in _box.keys) {
+      final data = _box.get(key) as Map;
+      budgets.add(BudgetEntity.fromJson(Map<String, dynamic>.from(data)));
     }
-
-    final monthlyBudget =
-        (box.get('monthly_budget', defaultValue: 0) as num).toDouble();
-
-    state = state.copyWith(
-      budgets: budgets,
-      monthlyBudget: monthlyBudget,
-      isLoading: false,
-    );
+    state = budgets;
   }
 
-  Future<void> addBudget(String category, double limit) async {
-    final box = Hive.box('budget');
-
-    final budget = BudgetEntity(
-      id: _uuid.v4(),
-      category: category,
-      limit: limit,
-      spent: 0,
-    );
-
-    await box.add(budget.toMap());
-    await loadBudgets();
+  Future<void> addBudget(BudgetEntity budget) async {
+    await _box.put(budget.id, budget.toJson());
+    state = [...state, budget];
   }
 
-  Future<void> setMonthlyBudget(double amount) async {
-    final box = Hive.box('budget');
-    await box.put('monthly_budget', amount);
-    await loadBudgets();
+  Future<void> updateBudget(BudgetEntity budget) async {
+    await _box.put(budget.id, budget.toJson());
+    state = [
+      for (final b in state)
+        if (b.id == budget.id) budget else b,
+    ];
   }
 
   Future<void> deleteBudget(String id) async {
-    final box = Hive.box('budget');
+    await _box.delete(id);
+    state = state.where((b) => b.id != id).toList();
+  }
 
-    for (var i = 0; i < box.length; i++) {
-      final data = box.getAt(i) as Map?;
-      if (data != null && data['id'] == id) {
-        await box.deleteAt(i);
-        break;
+  Future<void> checkBudgetAlerts() async {
+    final transactionsAsync = ref.read(transactionsProvider);
+
+    transactionsAsync.whenData((transactions) async {
+      final now = DateTime.now();
+
+      for (final budget in state) {
+        final spent = transactions
+            .where((t) =>
+                t.type == 'expense' &&
+                t.category == budget.category &&
+                t.date.month == now.month &&
+                t.date.year == now.year)
+            .fold(0.0, (sum, t) => sum + t.amount);
+
+        final percentage = (spent / budget.limit) * 100;
+
+        if (percentage >= 90 && percentage < 100) {
+          await NotificationService().showNotification(
+            id: budget.id.hashCode,
+            title: 'Peringatan Anggaran',
+            body:
+                'Anggaran ${budget.category} hampir habis! ${percentage.toStringAsFixed(0)}% terpakai.',
+          );
+        } else if (percentage >= 100) {
+          await NotificationService().showNotification(
+            id: budget.id.hashCode + 1,
+            title: 'Anggaran Terlampaui!',
+            body:
+                'Anggaran ${budget.category} sudah terlampaui ${(percentage - 100).toStringAsFixed(0)}%!',
+          );
+        }
       }
-    }
-
-    await loadBudgets();
+    });
   }
 }

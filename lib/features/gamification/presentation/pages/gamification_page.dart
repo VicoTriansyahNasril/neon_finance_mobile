@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/neon_card.dart';
 import '../providers/gamification_provider.dart';
 
 class GamificationPage extends ConsumerWidget {
@@ -12,116 +12,208 @@ class GamificationPage extends ConsumerWidget {
     final gamificationState = ref.watch(gamificationProvider);
 
     return Scaffold(
+      backgroundColor: AppTheme.darkBg,
       appBar: AppBar(
-        title: const Text('Achievements'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go('/'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: const Text(
+          'Gamification',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
         ),
       ),
-      body: gamificationState.isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                _buildLevelCard(gamificationState),
-                const SizedBox(height: 24),
-                _buildDailyQuestsSection(ref, gamificationState),
-                const SizedBox(height: 24),
-                _buildBadgesSection(gamificationState),
-              ],
-            ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildLevelCard(gamificationState),
+            const SizedBox(height: 24),
+            _buildQuestsSection(gamificationState),
+            const SizedBox(height: 24),
+            _buildBadgesSection(gamificationState),
+          ],
+        ),
+      ),
     );
   }
 
   Widget _buildLevelCard(GamificationState state) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [AppTheme.neonPurple, AppTheme.neonCyan],
-        ),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.neonPurple.withValues(alpha: 0.3),
-            blurRadius: 16,
-          ),
-        ],
-      ),
+    final xpToNextLevel = (state.level * 100) - state.xp;
+    final progress = (state.xp % 100) / 100;
+
+    return NeonCard(
       child: Column(
         children: [
-          const Text(
-            'LEVEL',
-            style: TextStyle(fontSize: 12, color: Colors.white70),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Level',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.white54,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '${state.level}',
+                    style: const TextStyle(
+                      fontSize: 48,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.neonPurple,
+                    ),
+                  ),
+                ],
+              ),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                decoration: BoxDecoration(
+                  color: AppTheme.neonPurple.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: AppTheme.neonPurple,
+                    width: 2,
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    const Text(
+                      'Total XP',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.white54,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '${state.xp}',
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-          Text(
-            '${state.level}',
-            style: const TextStyle(
-              fontSize: 48,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
-          const SizedBox(height: 16),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(4),
-            child: LinearProgressIndicator(
-              value: (state.xp % 100) / 100,
-              minHeight: 8,
-              backgroundColor: Colors.white30,
-              valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            '${state.xp % 100} / 100 XP',
-            style: const TextStyle(fontSize: 14, color: Colors.white),
+          const SizedBox(height: 24),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Progress to Level ${state.level + 1}',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Colors.white70,
+                    ),
+                  ),
+                  Text(
+                    '$xpToNextLevel XP to go',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: AppTheme.neonPurple,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: LinearProgressIndicator(
+                  value: progress,
+                  minHeight: 16,
+                  backgroundColor: Colors.white12,
+                  valueColor: const AlwaysStoppedAnimation<Color>(
+                    AppTheme.neonPurple,
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
     );
   }
 
-  Widget _buildDailyQuestsSection(WidgetRef ref, GamificationState state) {
+  Widget _buildQuestsSection(GamificationState state) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
           'Daily Quests',
           style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
           ),
         ),
-        const SizedBox(height: 12),
-        ...state.dailyQuests.map((quest) {
-          return Container(
-            margin: const EdgeInsets.only(bottom: 12),
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppTheme.darkCard,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: quest.isCompleted
-                    ? AppTheme.neonGreen.withValues(alpha: 0.3)
-                    : AppTheme.neonPurple.withValues(alpha: 0.3),
-              ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+        const SizedBox(height: 16),
+        if (state.quests.isEmpty)
+          NeonCard(
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
                   children: [
                     Icon(
-                      quest.isCompleted
-                          ? Icons.check_circle
-                          : Icons.radio_button_unchecked,
-                      color: quest.isCompleted
-                          ? AppTheme.neonGreen
-                          : AppTheme.neonPurple,
+                      Icons.emoji_events_outlined,
+                      size: 48,
+                      color: Colors.white.withValues(alpha: 0.3),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Belum ada quest tersedia',
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.6),
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          )
+        else
+          ...state.quests.map((quest) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: NeonCard(
+                child: Row(
+                  children: [
+                    Container(
+                      width: 50,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        color: quest.isCompleted
+                            ? AppTheme.neonGreen.withValues(alpha: 0.2)
+                            : AppTheme.neonPurple.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        quest.isCompleted
+                            ? Icons.check_circle
+                            : Icons.assignment,
+                        color: quest.isCompleted
+                            ? AppTheme.neonGreen
+                            : AppTheme.neonPurple,
+                        size: 28,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -130,14 +222,16 @@ class GamificationPage extends ConsumerWidget {
                             quest.title,
                             style: const TextStyle(
                               fontSize: 16,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
                             ),
                           ),
+                          const SizedBox(height: 4),
                           Text(
                             quest.description,
                             style: const TextStyle(
-                              fontSize: 12,
-                              color: Colors.white60,
+                              fontSize: 13,
+                              color: Colors.white54,
                             ),
                           ),
                         ],
@@ -148,41 +242,22 @@ class GamificationPage extends ConsumerWidget {
                           horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
                         color: AppTheme.neonPurple.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
                         '+${quest.xpReward} XP',
                         style: const TextStyle(
-                          fontSize: 12,
                           color: AppTheme.neonPurple,
                           fontWeight: FontWeight.bold,
+                          fontSize: 12,
                         ),
                       ),
                     ),
                   ],
                 ),
-                if (!quest.isCompleted) ...[
-                  const SizedBox(height: 12),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(4),
-                    child: LinearProgressIndicator(
-                      value: quest.progress / 100,
-                      minHeight: 6,
-                      backgroundColor: Colors.white10,
-                      valueColor: const AlwaysStoppedAnimation<Color>(
-                          AppTheme.neonPurple),
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '${quest.currentCount} / ${quest.targetCount}',
-                    style: const TextStyle(fontSize: 12, color: Colors.white60),
-                  ),
-                ],
-              ],
-            ),
-          );
-        }),
+              ),
+            );
+          }),
       ],
     );
   }
@@ -194,71 +269,89 @@ class GamificationPage extends ConsumerWidget {
         const Text(
           'Badges',
           style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
           ),
         ),
-        const SizedBox(height: 12),
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
-            childAspectRatio: 0.85,
-          ),
-          itemCount: state.badges.length,
-          itemBuilder: (context, index) {
-            final badge = state.badges[index];
-            return Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: AppTheme.darkCard,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: badge.isUnlocked
-                      ? AppTheme.neonGreen.withValues(alpha: 0.5)
-                      : Colors.white24,
+        const SizedBox(height: 16),
+        if (state.badges.isEmpty)
+          NeonCard(
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  children: [
+                    Icon(
+                      Icons.military_tech_outlined,
+                      size: 48,
+                      color: Colors.white.withValues(alpha: 0.3),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Belum ada badge tersedia',
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.6),
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    _getBadgeIcon(badge.iconName),
-                    size: 40,
-                    color:
-                        badge.isUnlocked ? AppTheme.neonGreen : Colors.white30,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    badge.name,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: badge.isUnlocked ? Colors.white : Colors.white54,
+            ),
+          )
+        else
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              childAspectRatio: 0.85,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+            ),
+            itemCount: state.badges.length,
+            itemBuilder: (context, index) {
+              final badge = state.badges[index];
+              return NeonCard(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      _getBadgeIcon(badge.icon),
+                      size: 40,
+                      color: badge.isUnlocked
+                          ? AppTheme.neonGreen
+                          : Colors.white30,
                     ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    badge.description,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 10,
-                      color: Colors.white54,
+                    const SizedBox(height: 8),
+                    Text(
+                      badge.name,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: badge.isUnlocked ? Colors.white : Colors.white54,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-            );
-          },
-        ),
+                    const SizedBox(height: 4),
+                    Text(
+                      badge.description,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 10,
+                        color: Colors.white54,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
       ],
     );
   }

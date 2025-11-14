@@ -13,6 +13,7 @@ import '../../features/goals/presentation/pages/goals_page.dart';
 import '../../features/analytics/presentation/pages/analytics_page.dart';
 import '../../features/gamification/presentation/pages/gamification_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
+import '../../features/profile/presentation/pages/profile_edit_page.dart';
 import '../../features/settings/presentation/pages/settings_page.dart';
 
 final appRouter = GoRouter(
@@ -77,6 +78,11 @@ final appRouter = GoRouter(
       path: '/profile',
       name: 'profile',
       builder: (context, state) => const ProfilePage(),
+    ),
+    GoRoute(
+      path: '/profile/edit',
+      name: 'profileEdit',
+      builder: (context, state) => const ProfileEditPage(),
     ),
     GoRoute(
       path: '/settings',

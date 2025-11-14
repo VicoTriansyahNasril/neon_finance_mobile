@@ -2,33 +2,44 @@ class BudgetEntity {
   final String id;
   final String category;
   final double limit;
-  final double spent;
+  final DateTime month;
 
   BudgetEntity({
     required this.id,
     required this.category,
     required this.limit,
-    required this.spent,
+    required this.month,
   });
 
-  double get percentage => limit > 0 ? (spent / limit) * 100 : 0;
-  double get remaining => limit - spent;
-
-  Map<String, dynamic> toMap() {
+  Map<String, dynamic> toJson() {
     return {
       'id': id,
       'category': category,
       'limit': limit,
-      'spent': spent,
+      'month': month.toIso8601String(),
     };
   }
 
-  factory BudgetEntity.fromMap(Map<dynamic, dynamic> map) {
+  factory BudgetEntity.fromJson(Map<String, dynamic> json) {
     return BudgetEntity(
-      id: map['id'] as String,
-      category: map['category'] as String,
-      limit: (map['limit'] as num).toDouble(),
-      spent: (map['spent'] as num).toDouble(),
+      id: json['id'] as String,
+      category: json['category'] as String,
+      limit: (json['limit'] as num).toDouble(),
+      month: DateTime.parse(json['month'] as String),
+    );
+  }
+
+  BudgetEntity copyWith({
+    String? id,
+    String? category,
+    double? limit,
+    DateTime? month,
+  }) {
+    return BudgetEntity(
+      id: id ?? this.id,
+      category: category ?? this.category,
+      limit: limit ?? this.limit,
+      month: month ?? this.month,
     );
   }
 }
